@@ -1,0 +1,40 @@
+[{
+  "_id" : "1",
+  "userName" : "Rémy",
+  "userLastName" : "LABITTE",
+  "giftDeposits" : [
+    {
+      "amount" : 500.0,
+      "companyName" : "Apple",
+      "startDate" : ISODate("2020-11-28T19:45:34.905Z")
+    },
+    {
+      "amount" : 100.0,
+      "companyName" : "Apple",
+      "startDate" : ISODate("2022-11-28T20:05:19.079Z")
+    }
+  ],
+  "mealDeposits" : [
+    {
+      "amount" : 50.0,
+      "companyName" : "Apple",
+      "startDate" : ISODate("2020-11-28T21:04:57.224Z")
+    },
+    {
+      "amount" : 30.0,
+      "companyName" : "Apple",
+      "startDate" : ISODate("2021-11-28T21:05:01.426Z")
+    },
+    {
+      "amount" : 60.0,
+      "companyName" : "Apple",
+      "startDate" : ISODate("2022-11-28T21:05:05.808Z")
+    },
+    {
+      "amount" : 45.0,
+      "companyName" : "Apple",
+      "startDate" : ISODate("2022-11-28T21:07:30.513Z")
+    }
+  ],
+  "_class" : "com.backchallenge.wedoogift.Entities.User"
+}]

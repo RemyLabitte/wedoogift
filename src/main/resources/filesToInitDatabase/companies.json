@@ -1,0 +1,14 @@
+[
+  {
+    "_id": "1",
+    "companyName": "Apple",
+    "balance": 9315.0,
+    "_class": "com.backchallenge.wedoogift.Entities.Company"
+  },
+  {
+    "_id": "2",
+    "companyName": "Samsung",
+    "balance": 500,
+    "_class": "com.backchallenge.wedoogift.Entities.Company"
+  }
+]

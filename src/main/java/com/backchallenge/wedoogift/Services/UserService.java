@@ -1,10 +1,11 @@
 package com.backchallenge.wedoogift.Services;
 
 import com.backchallenge.wedoogift.Dto.CompanyDto;
-import com.backchallenge.wedoogift.Dto.GiftDepositInput;
 import com.backchallenge.wedoogift.Dto.GiftDto;
-import com.backchallenge.wedoogift.Dto.MealDepositInput;
+import com.backchallenge.wedoogift.Dto.GiftDepositInput;
 import com.backchallenge.wedoogift.Dto.MealDto;
+import com.backchallenge.wedoogift.Dto.MealDepositInput;
+import com.backchallenge.wedoogift.Dto.UserDto;
 import com.backchallenge.wedoogift.Entities.User;
 import com.backchallenge.wedoogift.Exceptions.NotEnoughException;
 import com.backchallenge.wedoogift.Exceptions.NotFoundException;
@@ -12,6 +13,7 @@ import com.backchallenge.wedoogift.Repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 
@@ -87,4 +89,59 @@ public class UserService {
         }
     }
 
+    public UserDto calculateUserBalance(String userId) throws NotFoundException {
+        Optional<User> user = userRepository.findById(userId);
+        UserDto userBalance = new UserDto();
+        if (user.isPresent()) {
+            userBalance.setUserName(user.get().getUserName());
+            userBalance.setUserLastName(user.get().getUserLastName());
+            userBalance.setGiftBalance(calculateGiftDepositAmount(user.get()));
+            userBalance.setMealBalance(calculateMealDepositAmount(user.get()));
+        } else {
+            throw new NotFoundException("User with id " + userId + " was not found");
+        }
+        return userBalance;
+    }
+
+    private double calculateGiftDepositAmount(User user) {
+        if (null == user.getGiftDeposits() || user.getGiftDeposits().isEmpty()) {
+            return 0;
+        }
+
+        return user.getGiftDeposits().stream()
+                .filter(giftDtoDeposit -> {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(giftDtoDeposit.getStartDate());
+                    calendar.add(Calendar.YEAR, 1);
+                    Date giftDepositStartDatePlusOneYear = calendar.getTime();
+                    return new Date().before(giftDepositStartDatePlusOneYear);
+                }).map(GiftDto::getAmount).mapToDouble(Double::doubleValue).sum();
+    }
+
+    private double calculateMealDepositAmount(User user) {
+        if (null == user.getMealDeposits() || user.getMealDeposits().isEmpty()) {
+            return 0;
+        }
+
+        return user.getMealDeposits().stream()
+                .filter(mealDtoDeposit -> {
+                    Calendar startDateCalendar = Calendar.getInstance();
+                    startDateCalendar.setTime(mealDtoDeposit.getStartDate());
+
+                    Calendar calendar = Calendar.getInstance();
+                    // Manage deposits done in January
+                    if (startDateCalendar.get(Calendar.MONTH) == Calendar.JANUARY) {
+                        calendar.set(startDateCalendar.get(Calendar.YEAR) + 2, Calendar.FEBRUARY, 2);
+                        Date nextFebruary = calendar.getTime();
+                        return mealDtoDeposit.getStartDate().before(nextFebruary) && new Date().before(nextFebruary);
+                    } else {
+                        calendar.set(startDateCalendar.get(Calendar.YEAR) + 1, Calendar.FEBRUARY, 2);
+                        Date nextFebruary = calendar.getTime();
+                        return mealDtoDeposit.getStartDate().before(nextFebruary) && new Date().before(nextFebruary);
+                    }
+                })
+                .map(MealDto::getAmount)
+                .mapToDouble(Double::doubleValue)
+                .sum();
+    }
 }
